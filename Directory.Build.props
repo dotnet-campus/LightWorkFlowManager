@@ -5,13 +5,12 @@
     <PackageOutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)</PackageOutputPath>
     <Company>dotnet campus（.NET 职业技术学院）</Company>
  
-    <!-- 替换下面信息 -->
     <Authors>dotnet-campus</Authors>
     <RepositoryUrl>https://github.com/dotnet-campus/LightWorkFlowManager</RepositoryUrl>
     <PackageProjectUrl>https://github.com/dotnet-campus/LightWorkFlowManager</PackageProjectUrl>
-    <Description>TODO: 请在此处添加包描述信息。</Description>
+    <Description>轻量的工作过程管理</Description>
 
     <RepositoryType>git</RepositoryType>
-    <Copyright>Copyright © 2022 dotnet campus, All Rights Reserved.</Copyright> 
+    <Copyright>Copyright © 2023 dotnet campus, All Rights Reserved.</Copyright> 
   </PropertyGroup>
 </Project>
