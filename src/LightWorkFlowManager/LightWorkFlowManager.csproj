@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <RootNamespace>DC.LightWorkFlowManager</RootNamespace>
   </PropertyGroup>
 
   <!-- 在 GitHub 的 Action 构建会添加 GITHUB_ACTIONS 变量 -->
@@ -31,7 +33,7 @@
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <!-- 链接源代码到 GitHub 仓库，方便调试 -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
