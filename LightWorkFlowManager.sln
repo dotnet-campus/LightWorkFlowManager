@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5D196596-756
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightWorkFlowManager", "src\LightWorkFlowManager\LightWorkFlowManager.csproj", "{F7ED61F4-920C-49EB-8DC1-74B2BE6AF272}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightWorkFlowManager.Tests", "src\LightWorkFlowManager.Tests\LightWorkFlowManager.Tests.csproj", "{0B617CB5-1D30-47FC-B914-066A6D5B1D63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,11 +19,16 @@ Global
 		{F7ED61F4-920C-49EB-8DC1-74B2BE6AF272}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7ED61F4-920C-49EB-8DC1-74B2BE6AF272}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7ED61F4-920C-49EB-8DC1-74B2BE6AF272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B617CB5-1D30-47FC-B914-066A6D5B1D63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B617CB5-1D30-47FC-B914-066A6D5B1D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B617CB5-1D30-47FC-B914-066A6D5B1D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B617CB5-1D30-47FC-B914-066A6D5B1D63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F7ED61F4-920C-49EB-8DC1-74B2BE6AF272} = {5D196596-756D-45C2-8A05-C8E4AB8A36E6}
+		{0B617CB5-1D30-47FC-B914-066A6D5B1D63} = {5D196596-756D-45C2-8A05-C8E4AB8A36E6}
 	EndGlobalSection
 EndGlobal
