@@ -80,7 +80,7 @@ class FooWorker : MessageWorker<InputType, OutputType>
 
 ```csharp
  // 以下例子将当前上下文里的 Foo1Type 类型转换为 FooWorker 需要的 Foo2Type 参数
-            manager
+            await Manager
                 .SetContext((Foo1Type foo1) => ConvertFoo1ToFoo2(foo1))
                 .RunWorker<FooWorker>();
 ```
