@@ -56,7 +56,7 @@ public class MessageWorkerManager : IAsyncDisposable
     public string TaskId { get; }
 
     /// <summary>
-    /// 任务名，任务类型，如 ENBX 解析或 PPT 解析等
+    /// 任务名，任务类型，如 PDF 解析或 PPT 解析等
     /// </summary>
     public string TaskName { get; }
 
