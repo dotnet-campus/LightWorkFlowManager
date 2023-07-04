@@ -89,6 +89,14 @@ class FooWorker : MessageWorker<InputType, OutputType>
 
 每个 Worker 都可以返回 WorkerResult 类型的返回值，可以在返回值里面告知框架层是否当前的 Worker 执行成功。在执行失败时，可以赋值错误码，方便定位调试或输出。在执行失败时，可以返回告知框架层是否需要重试
 
+中断后续的工作器执行有两个方法：
+
+方法1： 通过返回状态为失败的 WorkerResult 返回值。一旦工作管理器的状态为 IsFail 状态，将会阻止所有的没有标记 CanRunWhenFail 为 true 的工作器的执行。换句话说就是除了哪些不断成功或失败状态都要执行的 Worker 工作器之外，其他的工作器都将不会执行，包括 SetContext 里面的委托转换也不会执行
+
+方法2： 通过抛出异常的方式，通过 dotnet 里面的异常可以让后续逻辑炸掉不再执行
+
+以上两个方法都是框架推荐使用的。框架设计的偏好是如果在重视性能的情况下，尽量使用方法1的方式中断执行。如果是在复杂的业务逻辑，有大量业务逻辑穿插在工作过程之外，则可以方便通过方法2进行中断
+
 ### 在 Worker 里执行其他 Worker 工作器
 
 在一个 Worker 里面，可以执行其他的 Worker 工作器，如此可以比较自由的实现分支逻辑，套娃决定执行工作器
@@ -127,6 +135,27 @@ class FooWorker : MessageWorker<InputType, OutputType>
     }
 ```
 
+### 委托工作器
+
+有一些非常小且轻的逻辑，也想加入到工作过程里面，但不想为此定义一个单独的工作器。可以试试委托工作器，如以下代码例子
+
+```csharp
+            var delegateMessageWorker = new DelegateMessageWorker(_ =>
+            {
+                // 在这里编写委托工作器的业务内容
+            });
+
+            var result = await messageWorkerManager.RunWorker(delegateMessageWorker);
+```
+
+如果连 DelegateMessageWorker 都不想创建，那也可以直接使用 MessageWorkerManager 的 RunWorker 方法传入委托，如以下代码例子
+
+```csharp
+            await messageWorkerManager.RunWorker((IWorkerContext context) =>
+            {
+                // 在这里编写委托工作器的业务内容
+            });
+```
 
 ## 相似的项目
 
