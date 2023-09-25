@@ -2,6 +2,12 @@
 
 轻量的工作过程管理
 
+[![Github issues](https://img.shields.io/github/issues/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/issues)
+[![Github forks](https://img.shields.io/github/forks/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/network/members)
+[![Github stars](https://img.shields.io/github/stars/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/stargazers)
+[![Top language](https://img.shields.io/github/languages/top/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/)
+[![Github license](https://img.shields.io/github/license/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/)
+
 世界上有许多现有的工作过程管理，那为什么还重新造了一个？没啥原因，自己造的用的顺手
 
 为了不和旧代码冲突，这里命名 Worker 为 MessageWorker 类型
