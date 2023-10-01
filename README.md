@@ -2,6 +2,7 @@
 
 轻量的工作过程管理
 
+[![](https://img.shields.io/nuget/v/dotnetCampus.LightWorkFlowManager.svg)](https://www.nuget.org/packages/dotnetCampus.LightWorkFlowManager)
 [![Github issues](https://img.shields.io/github/issues/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/issues)
 [![Github forks](https://img.shields.io/github/forks/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/network/members)
 [![Github stars](https://img.shields.io/github/stars/dotnet-campus/LightWorkFlowManager)](https://github.com/dotnet-campus/LightWorkFlowManager/stargazers)
