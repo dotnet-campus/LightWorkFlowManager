@@ -11,6 +11,13 @@
     <Description>轻量的工作过程管理</Description>
 
     <RepositoryType>git</RepositoryType>
-    <Copyright>Copyright © 2023 dotnet campus, All Rights Reserved.</Copyright> 
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright © 2023 dotnet campus, All Rights Reserved.</Copyright>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" Link="README.md" Visible="false" Pack="True" PackagePath="\"/>
+  </ItemGroup>
 </Project>
