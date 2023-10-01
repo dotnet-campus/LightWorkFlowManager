@@ -30,8 +30,16 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// </summary>
     public string Message { get; }
 
+    /// <summary>
+    /// 表示成功
+    /// </summary>
     public static WorkFlowErrorCode Ok => new WorkFlowErrorCode(0, "Ok");
 
+    /// <summary>
+    /// 追加信息
+    /// </summary>
+    /// <param name="appendMessage"></param>
+    /// <returns></returns>
     public WorkFlowErrorCode AppendMessage(string? appendMessage)
     {
         if (appendMessage == null)
@@ -44,11 +52,19 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
         }
     }
 
+    /// <summary>
+    /// 隐式转换为 int 类型
+    /// </summary>
+    /// <param name="code"></param>
     public static implicit operator int(WorkFlowErrorCode code)
     {
         return code.Code;
     }
 
+    /// <summary>
+    /// 从 int 类型隐式转换为错误信息
+    /// </summary>
+    /// <param name="code"></param>
     public static implicit operator WorkFlowErrorCode(int code)
     {
         if (ErrorCodeDictionary.TryGetValue(code, out var value))
@@ -64,31 +80,47 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
         return new WorkFlowErrorCode(code, string.Empty);
     }
 
+    /// <inheritdoc />
     public override string ToString() => $"{Code} {Message}";
 
     private static readonly ConcurrentDictionary<int, WorkFlowErrorCode> ErrorCodeDictionary =
         new ConcurrentDictionary<int, WorkFlowErrorCode>();
 
+    /// <inheritdoc />
     public bool Equals(WorkFlowErrorCode other)
     {
         return Code == other.Code;
     }
 
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return obj is WorkFlowErrorCode other && Equals(other);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return Code;
     }
 
+    /// <summary>
+    /// 判断相等
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator ==(WorkFlowErrorCode left, WorkFlowErrorCode right)
     {
         return left.Equals(right);
     }
 
+    /// <summary>
+    /// 判断不相等
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator !=(WorkFlowErrorCode left, WorkFlowErrorCode right)
     {
         return !left.Equals(right);
