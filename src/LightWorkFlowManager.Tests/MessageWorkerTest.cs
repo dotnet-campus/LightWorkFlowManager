@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-
-using LightWorkFlowManager.Contexts;
-using LightWorkFlowManager.Protocols;
-using LightWorkFlowManager.Workers;
-
+using DC.LightWorkFlowManager;
+using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Protocols;
+using DC.LightWorkFlowManager.Workers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

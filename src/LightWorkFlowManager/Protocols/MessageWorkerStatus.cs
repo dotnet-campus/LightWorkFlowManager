@@ -1,8 +1,8 @@
 ﻿using System;
-using LightWorkFlowManager.Contexts;
-using LightWorkFlowManager.Workers;
+using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Workers;
 
-namespace LightWorkFlowManager.Protocols;
+namespace DC.LightWorkFlowManager.Protocols;
 
 public class MessageWorkerStatus
 {

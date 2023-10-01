@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using LightWorkFlowManager.Contexts;
-using LightWorkFlowManager.Protocols;
+using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Protocols;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace LightWorkFlowManager.Workers;
+namespace DC.LightWorkFlowManager.Workers;
 
 /// <summary>
 /// 工作器基类

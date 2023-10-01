@@ -1,4 +1,4 @@
-﻿namespace LightWorkFlowManager.Exceptions;
+﻿namespace DC.LightWorkFlowManager.Exceptions;
 
 public class WorkerContextNotFoundException : WorkFlowException
 {

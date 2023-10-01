@@ -1,6 +1,6 @@
-﻿using LightWorkFlowManager.Exceptions;
+﻿using DC.LightWorkFlowManager.Exceptions;
 
-namespace LightWorkFlowManager.Contexts;
+namespace DC.LightWorkFlowManager.Contexts;
 
 public interface IWorkerContext
 {

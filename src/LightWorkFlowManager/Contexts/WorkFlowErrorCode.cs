@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace LightWorkFlowManager.Contexts;
+namespace DC.LightWorkFlowManager.Contexts;
 
 /// <summary>
 /// 错误码

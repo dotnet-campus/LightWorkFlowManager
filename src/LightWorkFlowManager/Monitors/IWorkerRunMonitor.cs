@@ -1,8 +1,8 @@
 ﻿using System;
-using LightWorkFlowManager.Protocols;
-using LightWorkFlowManager.Workers;
+using DC.LightWorkFlowManager.Protocols;
+using DC.LightWorkFlowManager.Workers;
 
-namespace LightWorkFlowManager.Monitors;
+namespace DC.LightWorkFlowManager.Monitors;
 
 public interface IWorkerRunMonitor
 {

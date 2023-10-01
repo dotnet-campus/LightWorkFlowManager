@@ -1,7 +1,7 @@
 ﻿using System;
-using LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Contexts;
 
-namespace LightWorkFlowManager.Exceptions;
+namespace DC.LightWorkFlowManager.Exceptions;
 
 /// <summary>
 /// 工作过程的异常，使用用来扔出明确异常，打断后续执行

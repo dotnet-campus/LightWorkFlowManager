@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace LightWorkFlowManager.Contexts;
+namespace DC.LightWorkFlowManager.Contexts;
 
 public class WorkerContext : IWorkerContext
 {

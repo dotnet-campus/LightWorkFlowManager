@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using LightWorkFlowManager.Contexts;
-using LightWorkFlowManager.Protocols;
+using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Protocols;
 
-namespace LightWorkFlowManager.Workers;
+namespace DC.LightWorkFlowManager.Workers;
 
 /// <summary>
 /// 工作器

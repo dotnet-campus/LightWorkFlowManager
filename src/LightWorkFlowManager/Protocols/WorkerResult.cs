@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Contexts;
 
-namespace LightWorkFlowManager.Protocols;
+namespace DC.LightWorkFlowManager.Protocols;
 
 public class WorkerResult
 {

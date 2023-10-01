@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace LightWorkFlowManager.Exceptions;
+namespace DC.LightWorkFlowManager.Exceptions;
 
 /// <summary>
 /// 表示工作过程的异常

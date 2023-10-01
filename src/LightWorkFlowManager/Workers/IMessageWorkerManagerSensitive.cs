@@ -1,4 +1,4 @@
-﻿namespace LightWorkFlowManager.Workers;
+﻿namespace DC.LightWorkFlowManager.Workers;
 
 /// <summary>
 /// 表示对 <see cref="MessageWorkerManager"/> 需要注入

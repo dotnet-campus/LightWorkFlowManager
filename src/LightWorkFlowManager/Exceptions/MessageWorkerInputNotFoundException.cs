@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LightWorkFlowManager.Exceptions;
+namespace DC.LightWorkFlowManager.Exceptions;
 
 /// <summary>
 /// 找不到输入的异常，基本上就是业务代码写错
