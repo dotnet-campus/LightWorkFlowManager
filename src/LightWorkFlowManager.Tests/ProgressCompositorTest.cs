@@ -6,9 +6,15 @@ using MSTest.Extensions.Contracts;
 
 namespace LightWorkFlowManager.Tests;
 
+/// <summary>
+/// `ProgressCompositor` 相关测试。
+/// </summary>
 [TestClass]
 public class ProgressCompositorTest
 {
+    /// <summary>
+    /// 验证子进度合成后的进度计算结果。
+    /// </summary>
     [ContractTestCase]
     public void TestSubProgressReport()
     {

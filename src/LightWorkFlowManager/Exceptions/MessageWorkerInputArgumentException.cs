@@ -7,6 +7,10 @@ namespace DC.LightWorkFlowManager.Exceptions;
 /// </summary>
 public class MessageWorkerInputArgumentException : MessageWorkerException
 {
+    /// <summary>
+    /// 使用指定错误码初始化输入参数异常。
+    /// </summary>
+    /// <param name="errorCode">输入参数错误对应的工作流错误码。</param>
     public MessageWorkerInputArgumentException(WorkFlowErrorCode errorCode) : base(errorCode,canRetryWorker: false)
     {
     }

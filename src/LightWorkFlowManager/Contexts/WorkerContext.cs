@@ -3,8 +3,12 @@ using System.Collections.Concurrent;
 
 namespace DC.LightWorkFlowManager.Contexts;
 
+/// <summary>
+/// 提供基于类型索引的工作器上下文实现。
+/// </summary>
 public class WorkerContext : IWorkerContext
 {
+    /// <inheritdoc />
     [System.Diagnostics.DebuggerStepThrough]
     public T? GetContext<T>()
     {
@@ -16,6 +20,7 @@ public class WorkerContext : IWorkerContext
         return default;
     }
 
+    /// <inheritdoc />
     public void SetContext<T>(T context)
     {
         _contextDictionary[typeof(T)] = context;

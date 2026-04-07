@@ -6,8 +6,13 @@ using DC.LightWorkFlowManager.Protocols;
 
 namespace DC.LightWorkFlowManager.Workers;
 
+/// <summary>
+/// 表示需要单个输入参数的工作器基类。
+/// </summary>
+/// <typeparam name="TInput">输入参数类型。</typeparam>
 public abstract class MessageWorker<TInput> : MessageWorkerBase
 {
+    /// <inheritdoc />
     public sealed override ValueTask<WorkerResult> Do(IWorkerContext context)
     {
         var input = context.GetContext<TInput>();
@@ -23,6 +28,11 @@ public abstract class MessageWorker<TInput> : MessageWorkerBase
     protected abstract ValueTask<WorkerResult> DoAsync(TInput input);
 }
 
+/// <summary>
+/// 表示带输入与输出参数的工作器基类。
+/// </summary>
+/// <typeparam name="TInput">输入参数类型。</typeparam>
+/// <typeparam name="TOutput">输出参数类型。</typeparam>
 public abstract class MessageWorker<TInput, TOutput> : MessageWorker<TInput>
 {
     protected sealed override async ValueTask<WorkerResult> DoAsync(TInput input)
@@ -37,6 +47,12 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker<TInput>
         return output;
     }
 
+    /// <summary>
+    /// 使用当前上下文中的参数转换为输入后运行工作器。
+    /// </summary>
+    /// <typeparam name="TArgument">当前上下文中的参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为输入参数的委托。</param>
+    /// <returns>带输出结果的工作器执行结果。</returns>
     public ValueTask<WorkerResult<TOutput>> RunAsync<TArgument>(Func<TArgument, TInput> converter)
     {
         var argument = CurrentContext.GetEnsureContext<TArgument>();
@@ -44,6 +60,11 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker<TInput>
         return RunAsync(input);
     }
 
+    /// <summary>
+    /// 使用指定输入参数运行工作器。
+    /// </summary>
+    /// <param name="input">工作器输入参数。</param>
+    /// <returns>带输出结果的工作器执行结果。</returns>
     public ValueTask<WorkerResult<TOutput>> RunAsync(TInput input)
     {
         ThrowNotManager();
@@ -52,6 +73,10 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker<TInput>
         return RunAsync();
     }
 
+    /// <summary>
+    /// 使用当前上下文运行工作器并返回输出结果。
+    /// </summary>
+    /// <returns>带输出结果的工作器执行结果。</returns>
     public new async ValueTask<WorkerResult<TOutput>> RunAsync()
     {
         ThrowNotManager();

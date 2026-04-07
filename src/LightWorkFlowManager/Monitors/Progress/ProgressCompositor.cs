@@ -6,7 +6,7 @@ namespace DC.LightWorkFlowManager.Monitors;
 /// <summary>
 /// 进度合成器，允许包含多个子进度
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">随进度一起上报的数据类型。</typeparam>
 /// 规则：
 /// - 可以注册多个子进度，每个子进度都有自己的权值
 /// - 子进度的进度贡献到上级进度时，将叠加上子进度自己的权值。如占比一半权值的子进度，就最多只贡献一半的进度
@@ -16,7 +16,7 @@ public class ProgressCompositor<T>
     /// <summary>
     /// 创建进度合成器
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">进度名。</param>
     public ProgressCompositor(string name)
     {
         Name = name;
@@ -88,6 +88,11 @@ public class ProgressCompositor<T>
         return subProgressList;
     }
 
+    /// <summary>
+    /// 注册单个子进度合成器。
+    /// </summary>
+    /// <param name="subProgressCompositor">子进度注册信息。</param>
+    /// <returns>创建出的子进度合成器。</returns>
     public ProgressCompositor<T> RegisterSubProgressCompositor(SubProgressCompositorInfo subProgressCompositor)
     {
         var progressCompositor = new ProgressCompositor<T>(subProgressCompositor.Name);
@@ -109,8 +114,8 @@ public class ProgressCompositor<T>
     /// <summary>
     /// 上报进度
     /// </summary>
-    /// <param name="percentage"></param>
-    /// <param name="value"></param>
+    /// <param name="percentage">当前进度值。</param>
+    /// <param name="value">随进度上报的数据。</param>
     public void Report(ProgressPercentage percentage, T? value = default)
     {
         _selfProgressPercentage = percentage;
@@ -127,8 +132,8 @@ public class ProgressCompositor<T>
     /// <summary>
     /// 上报增量进度，将叠加上当前的进度
     /// </summary>
-    /// <param name="percentage"></param>
-    /// <param name="value"></param>
+    /// <param name="percentage">要增加的进度值。</param>
+    /// <param name="value">随进度上报的数据。</param>
     public void ReportIncreased(ProgressPercentage percentage, T? value = default)
     {
         var currentPercentageValue = _selfProgressPercentage.Value + percentage.Value;

@@ -12,6 +12,8 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 创建错误码
     /// </summary>
+    /// <param name="code">错误码数值。</param>
+    /// <param name="message">错误码对应的可读信息。</param>
     public WorkFlowErrorCode(int code, string message)
     {
         Code = code;
@@ -38,8 +40,8 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 追加信息
     /// </summary>
-    /// <param name="appendMessage"></param>
-    /// <returns></returns>
+    /// <param name="appendMessage">要追加的描述信息。</param>
+    /// <returns>追加描述后的错误码。</returns>
     public WorkFlowErrorCode AppendMessage(string? appendMessage)
     {
         if (appendMessage == null)
@@ -55,7 +57,8 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 隐式转换为 int 类型
     /// </summary>
-    /// <param name="code"></param>
+    /// <param name="code">工作流错误码。</param>
+    /// <returns>错误码数值。</returns>
     public static implicit operator int(WorkFlowErrorCode code)
     {
         return code.Code;
@@ -64,7 +67,8 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 从 int 类型隐式转换为错误信息
     /// </summary>
-    /// <param name="code"></param>
+    /// <param name="code">错误码数值。</param>
+    /// <returns>对应的工作流错误码。</returns>
     public static implicit operator WorkFlowErrorCode(int code)
     {
         if (ErrorCodeDictionary.TryGetValue(code, out var value))
@@ -107,9 +111,9 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 判断相等
     /// </summary>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <returns></returns>
+    /// <param name="left">左侧错误码。</param>
+    /// <param name="right">右侧错误码。</param>
+    /// <returns>两个错误码是否相等。</returns>
     public static bool operator ==(WorkFlowErrorCode left, WorkFlowErrorCode right)
     {
         return left.Equals(right);
@@ -118,9 +122,9 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// <summary>
     /// 判断不相等
     /// </summary>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <returns></returns>
+    /// <param name="left">左侧错误码。</param>
+    /// <param name="right">右侧错误码。</param>
+    /// <returns>两个错误码是否不相等。</returns>
     public static bool operator !=(WorkFlowErrorCode left, WorkFlowErrorCode right)
     {
         return !left.Equals(right);

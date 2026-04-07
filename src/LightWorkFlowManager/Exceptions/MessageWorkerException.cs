@@ -11,7 +11,7 @@ public class MessageWorkerException : WorkFlowException
     /// <summary>
     /// 工作过程的异常
     /// </summary>
-    /// <param name="errorCode"></param>
+    /// <param name="errorCode">工作流错误码。</param>
     /// <param name="canRetryWorker">默认 false 表示不能重试</param>
     public MessageWorkerException(WorkFlowErrorCode errorCode, bool canRetryWorker = false)
     {
@@ -22,6 +22,8 @@ public class MessageWorkerException : WorkFlowException
     /// <summary>
     /// 工作过程的异常
     /// </summary>
+    /// <param name="errorCode">工作流错误码。</param>
+    /// <param name="innerException">导致当前异常的内部异常。</param>
     public MessageWorkerException(WorkFlowErrorCode errorCode, Exception innerException) : base(errorCode.Message, innerException)
     {
         ErrorCode = errorCode;
@@ -32,7 +34,12 @@ public class MessageWorkerException : WorkFlowException
     /// 是否可以重试
     /// </summary>
     public bool CanRetryWorker { get; }
+
+    /// <summary>
+    /// 获取当前异常对应的工作流错误码。
+    /// </summary>
     public WorkFlowErrorCode ErrorCode { get; }
 
+    /// <inheritdoc />
     public override string Message => ErrorCode.Message;
 }
