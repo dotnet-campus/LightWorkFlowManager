@@ -1,9 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using DC.LightWorkFlowManager.Contexts;
+﻿using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Exceptions;
 using DC.LightWorkFlowManager.Protocols;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using System;
+using System.Threading.Tasks;
 
 namespace DC.LightWorkFlowManager.Workers;
 
@@ -76,9 +79,45 @@ public abstract class MessageWorker : IMessageWorker, IMessageWorkerManagerSensi
         return context;
     }
 
-    protected T GetEnsureContext<T>() => CurrentContext.GetEnsureContext<T>();
-    protected T? GetContext<T>() => CurrentContext.GetContext<T>();
-    protected void SetContext<T>(T context) => CurrentContext.SetContext(context);
+    protected T GetEnsureContext<T>()
+    {
+        ThrowNotManager();
+        return CurrentContext.GetEnsureContext<T>();
+    }
+
+    protected T? GetContext<T>()
+    {
+        ThrowNotManager();
+        return CurrentContext.GetContext<T>();
+    }
+
+    protected void SetContext<T>(T context)
+    {
+        ThrowNotManager();
+        CurrentContext.SetContext(context);
+    }
+
+    /// <summary>
+    /// 获取输入的上下文
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <remarks>
+    /// 仅框架内容，给带 Input 的调用
+    /// </remarks>
+    /// <exception cref="MessageWorkerInputNotFoundException"></exception>
+    private protected T GetInputContext<T>()
+    {
+        ThrowNotManager();
+        var input = GetContext<T>();
+
+        if (input == null)
+        {
+            throw new MessageWorkerInputNotFoundException($"Do not find {typeof(T)} in {WorkerName} worker. 无法在{WorkerName}找到{typeof(T)}输入，请确保前置步骤完成输出或初始化进行输入");
+        }
+
+        return input;
+    }
 
     /// <summary>
     /// 通过当前管理器执行当前工作器。

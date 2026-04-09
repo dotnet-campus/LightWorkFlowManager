@@ -17,12 +17,7 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker
     /// <inheritdoc />
     protected sealed override async ValueTask<WorkerResult> DoInnerAsync(IWorkerContext context)
     {
-        var input = context.GetContext<TInput>();
-
-        if (input == null)
-        {
-            throw new MessageWorkerInputNotFoundException($"Do not find {typeof(TInput)} in {WorkerName} worker. 无法在{WorkerName}找到{typeof(TInput)}输入，请确保前置步骤完成输出或初始化进行输入");
-        }
+        var input = GetInputContext<TInput>();
 
         WorkerResult<TOutput> output = await DoInnerAsync(input);
 
