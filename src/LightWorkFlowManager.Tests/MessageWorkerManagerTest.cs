@@ -158,7 +158,7 @@ public class MessageWorkerManagerTest
 
     private class RequestInputMessageWorker : MessageWorker<TestInputFoo>
     {
-        protected override ValueTask<WorkerResult> DoAsync(TestInputFoo input)
+        protected override ValueTask<WorkerResult> DoInnerAsync(TestInputFoo input)
         {
             return ValueTask.FromResult(WorkerResult.Success());
         }
@@ -168,11 +168,11 @@ public class MessageWorkerManagerTest
     {
     }
 
-    private class FailTestMessageWorker : MessageWorkerBase
+    private class FailTestMessageWorker : MessageWorker
     {
         public bool Success { get; set; }
 
-        public override ValueTask<WorkerResult> DoAsync(IWorkerContext context)
+        protected override ValueTask<WorkerResult> DoInnerAsync(IWorkerContext context)
         {
             var result = Success ? WorkerResult.Success() : WorkerResult.Fail(UnknownError);
             Success = !Success;
