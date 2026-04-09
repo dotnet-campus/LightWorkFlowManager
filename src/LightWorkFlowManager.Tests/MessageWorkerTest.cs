@@ -43,7 +43,7 @@ public class MessageWorkerTest
 
     class Worker1 : MessageWorkerBase
     {
-        public override async ValueTask<WorkerResult> Do(IWorkerContext context)
+        public override async ValueTask<WorkerResult> DoAsync(IWorkerContext context)
         {
             await Manager
                 .GetWorker<Worker2>()

@@ -172,7 +172,7 @@ public class MessageWorkerManagerTest
     {
         public bool Success { get; set; }
 
-        public override ValueTask<WorkerResult> Do(IWorkerContext context)
+        public override ValueTask<WorkerResult> DoAsync(IWorkerContext context)
         {
             var result = Success ? WorkerResult.Success() : WorkerResult.Fail(UnknownError);
             Success = !Success;

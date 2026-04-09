@@ -38,7 +38,7 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
         = false;
 
     /// <inheritdoc />
-    public abstract ValueTask<WorkerResult> Do(IWorkerContext context);
+    public abstract ValueTask<WorkerResult> DoAsync(IWorkerContext context);
 
     protected MessageWorkerStatus Status => GetEnsureContext<MessageWorkerStatus>();
     protected IWorkerContext CurrentContext => Manager.Context;

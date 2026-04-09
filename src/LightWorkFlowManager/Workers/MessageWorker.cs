@@ -13,7 +13,7 @@ namespace DC.LightWorkFlowManager.Workers;
 public abstract class MessageWorker<TInput> : MessageWorkerBase
 {
     /// <inheritdoc />
-    public sealed override ValueTask<WorkerResult> Do(IWorkerContext context)
+    public sealed override ValueTask<WorkerResult> DoAsync(IWorkerContext context)
     {
         var input = context.GetContext<TInput>();
 

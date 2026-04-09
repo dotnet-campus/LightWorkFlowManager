@@ -154,7 +154,7 @@ public class DelegateMessageWorker : MessageWorkerBase
     private readonly Func<IWorkerContext, ValueTask<WorkerResult>> _messageTask;
 
     /// <inheritdoc />
-    public override ValueTask<WorkerResult> Do(IWorkerContext context)
+    public override ValueTask<WorkerResult> DoAsync(IWorkerContext context)
     {
         return _messageTask(context);
     }

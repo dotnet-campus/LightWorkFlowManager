@@ -46,7 +46,7 @@ public interface IMessageWorker
     /// </summary>
     /// <param name="context">工作器上下文。</param>
     /// <returns>工作器执行结果。</returns>
-    ValueTask<WorkerResult> Do(IWorkerContext context);
+    ValueTask<WorkerResult> DoAsync(IWorkerContext context);
 
     /// <summary>
     /// 在工作器被释放时执行清理逻辑。

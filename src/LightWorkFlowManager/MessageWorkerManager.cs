@@ -397,7 +397,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <returns></returns>
     protected virtual ValueTask<WorkerResult> RunWorkerCore(IMessageWorker worker)
         // 可以在这里打断点，调试被执行的逻辑
-        => worker.Do(Context);
+        => worker.DoAsync(Context);
 
     /// <summary>
     /// 在当前是失败的状态下，跳过工作器的执行
@@ -545,4 +545,11 @@ public class MessageWorkerManager : IAsyncDisposable
 
         return $"[{name}] {status} WorkerList:{string.Join('-', _workerStack.Reverse().Select(worker => worker.WorkerName))}";
     }
+
+    #region RunWorker
+
+    // 双向和单向
+
+
+    #endregion
 }
