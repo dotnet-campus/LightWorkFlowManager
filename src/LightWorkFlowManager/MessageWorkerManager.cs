@@ -553,10 +553,11 @@ public class MessageWorkerManager : IAsyncDisposable
     // 双向和单向
 
     /// <summary>
-    /// 执行工作器
+    /// 使用指定输入参数解析并执行单输入工作器。
     /// </summary>
     /// <typeparam name="TWorker">工作器类型。</typeparam>
-    /// <typeparam name="TInput">输入类型。</typeparam>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <param name="input">本次执行所需的输入参数。</param>
     /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TWorker, TInput>(TInput input) where TWorker : MessageWorker<TInput>
     {
@@ -566,11 +567,12 @@ public class MessageWorkerManager : IAsyncDisposable
     }
 
     /// <summary>
-    /// 执行工作器
+    /// 从当前上下文读取参数，经转换后解析并执行单输入工作器。
     /// </summary>
     /// <typeparam name="TWorker">工作器类型。</typeparam>
-    /// <typeparam name="TArgument">输入参数类型。</typeparam>
-    /// <typeparam name="TInput">输入类型。</typeparam>
+    /// <typeparam name="TArgument">当前上下文中已有的参数类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
     /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TWorker, TArgument, TInput>(Func<TArgument, TInput> converter)
         where TWorker : MessageWorker<TInput>
@@ -581,9 +583,13 @@ public class MessageWorkerManager : IAsyncDisposable
     }
 
     /// <summary>
-    /// 执行工作器
+    /// 使用指定输入参数解析并执行带输出的工作器。
     /// </summary>
-    /// <returns>工作器执行结果。</returns>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
+    /// <param name="input">本次执行所需的输入参数。</param>
+    /// <returns>包含输出参数的工作器执行结果。</returns>
     public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TInput, TOutput>(TInput input) where TWorker : MessageWorker<TInput, TOutput>
     {
         var worker = GetWorker<TWorker>();
@@ -592,9 +598,14 @@ public class MessageWorkerManager : IAsyncDisposable
     }
 
     /// <summary>
-    /// 执行工作器
+    /// 从当前上下文读取参数，经转换后解析并执行带输出的工作器。
     /// </summary>
-    /// <returns>工作器执行结果。</returns>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TArgument">当前上下文中已有的参数类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
+    /// <returns>包含输出参数的工作器执行结果。</returns>
     public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TArgument, TInput, TOutput>(Func<TArgument, TInput> converter) where TWorker : MessageWorker<TInput, TOutput>
     {
         var worker = GetWorker<TWorker>();
