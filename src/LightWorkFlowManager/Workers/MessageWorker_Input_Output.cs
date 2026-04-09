@@ -32,19 +32,6 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker
     protected abstract ValueTask<WorkerResult<TOutput>> DoInnerAsync(TInput input);
 
     /// <summary>
-    /// 使用当前上下文中的参数转换为输入后运行工作器。
-    /// </summary>
-    /// <typeparam name="TArgument">当前上下文中的参数类型。</typeparam>
-    /// <param name="converter">将上下文参数转换为输入参数的委托。</param>
-    /// <returns>带输出结果的工作器执行结果。</returns>
-    public ValueTask<WorkerResult<TOutput>> RunAsync<TArgument>(Func<TArgument, TInput> converter)
-    {
-        var argument = CurrentContext.GetEnsureContext<TArgument>();
-        var input = converter(argument);
-        return RunAsync(input);
-    }
-
-    /// <summary>
     /// 使用指定输入参数运行工作器。
     /// </summary>
     /// <param name="input">工作器输入参数。</param>
@@ -55,6 +42,19 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker
 
         SetContext(input);
         return RunAsync();
+    }
+
+    /// <summary>
+    /// 使用当前上下文中的参数转换为输入后运行工作器。
+    /// </summary>
+    /// <typeparam name="TArgument">当前上下文中的参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为输入参数的委托。</param>
+    /// <returns>带输出结果的工作器执行结果。</returns>
+    public ValueTask<WorkerResult<TOutput>> RunAsync<TArgument>(Func<TArgument, TInput> converter)
+    {
+        var argument = CurrentContext.GetEnsureContext<TArgument>();
+        var input = converter(argument);
+        return RunAsync(input);
     }
 
     /// <summary>

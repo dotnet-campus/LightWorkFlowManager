@@ -178,6 +178,11 @@ public abstract class MessageWorker : IMessageWorker, IMessageWorkerManagerSensi
 
     void IMessageWorkerManagerSensitive.SetMessageWorkerManager(MessageWorkerManager manager)
     {
+        if (ReferenceEquals(Manager, manager))
+        {
+            return;
+        }
+
         Manager = manager;
 
         Logger = ServiceProvider.GetRequiredService<ILogger<IMessageWorker>>();

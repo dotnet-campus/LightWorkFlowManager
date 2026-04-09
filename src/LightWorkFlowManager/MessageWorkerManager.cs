@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+
 using DC.LightWorkFlowManager.Contexts;
 using DC.LightWorkFlowManager.Exceptions;
 using DC.LightWorkFlowManager.Monitors;
 using DC.LightWorkFlowManager.Protocols;
 using DC.LightWorkFlowManager.Workers;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -550,6 +552,55 @@ public class MessageWorkerManager : IAsyncDisposable
 
     // 双向和单向
 
+    /// <summary>
+    /// 执行工作器
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TInput">输入类型。</typeparam>
+    /// <returns>工作器执行结果。</returns>
+    public ValueTask<WorkerResult> RunWorker<TWorker, TInput>(TInput input) where TWorker : MessageWorker<TInput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(input);
+    }
+
+    /// <summary>
+    /// 执行工作器
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TArgument">输入参数类型。</typeparam>
+    /// <typeparam name="TInput">输入类型。</typeparam>
+    /// <returns>工作器执行结果。</returns>
+    public ValueTask<WorkerResult> RunWorker<TWorker, TArgument, TInput>(Func<TArgument, TInput> converter)
+        where TWorker : MessageWorker<TInput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(converter);
+    }
+
+    /// <summary>
+    /// 执行工作器
+    /// </summary>
+    /// <returns>工作器执行结果。</returns>
+    public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TInput, TOutput>(TInput input) where TWorker : MessageWorker<TInput, TOutput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(input);
+    }
+
+    /// <summary>
+    /// 执行工作器
+    /// </summary>
+    /// <returns>工作器执行结果。</returns>
+    public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TArgument, TInput, TOutput>(Func<TArgument, TInput> converter) where TWorker : MessageWorker<TInput, TOutput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(converter);
+    }
 
     #endregion
 }
