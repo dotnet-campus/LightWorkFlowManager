@@ -99,15 +99,25 @@ public abstract class MessageWorker<TInput, TOutput> : MessageWorker<TInput>
     /// 返回且标记失败
     /// </summary>
     /// <param name="errorCode"></param>
-    /// <param name="retry">是否需要重试</param>
+    /// <param name="canRetry">是否需要重试</param>
     /// <returns></returns>
-    protected WorkerResult<TOutput> Fail(WorkFlowErrorCode errorCode, bool retry = true)
+    protected new WorkerResult<TOutput> Fail(WorkFlowErrorCode errorCode, bool canRetry = true)
     {
-        return new WorkerResult<TOutput>(errorCode, retry);
+        return new WorkerResult<TOutput>(errorCode, canRetry);
     }
 
-    protected ValueTask<WorkerResult<TOutput>> FailTask(WorkFlowErrorCode errorCode, bool retry = true) 
-        => ValueTask.FromResult(Fail(errorCode, retry));
+    protected WorkerResult<TOutput> Fail(WorkerResult failResult)
+    {
+        return failResult.AsFail<TOutput>();
+    }
+
+    protected new ValueTask<WorkerResult<TOutput>> FailTask(WorkFlowErrorCode errorCode, bool canRetry = true) 
+        => ValueTask.FromResult(Fail(errorCode, canRetry));
+
+    protected ValueTask<WorkerResult<TOutput>> FailTask(WorkerResult failResult)
+    {
+        return FailTask(failResult.ErrorCode, failResult.CanRetry);
+    }
 
     protected WorkerResult<TOutput> Success(TOutput output)
     {

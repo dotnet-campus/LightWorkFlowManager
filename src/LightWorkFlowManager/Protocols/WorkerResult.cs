@@ -61,6 +61,16 @@ public class WorkerResult
     /// <returns>表示失败的执行结果。</returns>
     public static WorkerResult Fail(WorkFlowErrorCode errorCode, bool canRetry=true) => new WorkerResult(false, errorCode, canRetry);
 
+    public WorkerResult<T> AsFail<T>()
+    {
+        if (IsSuccess)
+        {
+            throw new InvalidOperationException($"仅当 Result 为失败时，才能作为另一个失败的结果");
+        }
+
+        return new WorkerResult<T>(ErrorCode, CanRetry);
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {

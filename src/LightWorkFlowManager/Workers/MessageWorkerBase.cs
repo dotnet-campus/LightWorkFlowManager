@@ -146,4 +146,22 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
             throw new InvalidOperationException($"MessageWorkerManager is null. 没有注入 MessageWorkerManager 对象，请确保 {GetType().FullName} 在 MessageWorkerManager 里运行。如调用 {nameof(MessageWorkerManager.GetWorker)} 或 {nameof(MessageWorkerManager.RunWorker)} 执行");
         }
     }
+
+    protected WorkerResult Fail(WorkFlowErrorCode errorCode, bool canRetry = true)
+    {
+        return WorkerResult.Fail(errorCode, canRetry);
+    }
+
+    protected ValueTask<WorkerResult> FailTask(WorkFlowErrorCode errorCode, bool canRetry = true)
+        => ValueTask.FromResult(Fail(errorCode, canRetry));
+
+    protected WorkerResult Success()
+    {
+        return WorkerResult.Success();
+    }
+
+    protected ValueTask<WorkerResult> SuccessTask()
+    {
+        return ValueTask.FromResult(Success());
+    }
 }
