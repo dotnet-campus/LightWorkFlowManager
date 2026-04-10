@@ -137,6 +137,27 @@ public class WorkerResult<T> : WorkerResult
 #endif
 
     /// <summary>
+    /// 将此结果转换为另一个结果
+    /// </summary>
+    /// <remarks>
+    /// 无需提前判断结果是否为成功，可自动当成功时才执行转换。对 IsFail 的结果调用转换，结果也是返回一个失败的结果，且错误码和是否可重试与原结果一致  
+    /// </remarks>
+    /// <typeparam name="TOther"></typeparam>
+    /// <param name="converter">转换器，当结果为成功时才会被调用</param>
+    /// <returns></returns>
+    public WorkerResult<TOther> Convert<TOther>(Func<T, TOther> converter)
+    {
+        if (IsSuccess)
+        {
+            return converter(Result);
+        }
+        else
+        {
+            return AsFail<TOther>();
+        }
+    }
+
+    /// <summary>
     /// 将输出结果隐式转换为成功的执行结果。
     /// </summary>
     /// <param name="workerResult">输出结果。</param>

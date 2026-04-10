@@ -3,6 +3,7 @@ using DC.LightWorkFlowManager.Exceptions;
 using DC.LightWorkFlowManager.Protocols;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace DC.LightWorkFlowManager.Workers;
@@ -34,6 +35,26 @@ public abstract class MessageWorker<TInput> : MessageWorker
 
         SetContext(input);
         return RunAsync();
+    }
+
+    /// <summary>
+    /// 使用指定输入参数运行工作器。
+    /// </summary>
+    /// <param name="input">工作器输入参数。</param>
+    /// <returns>带输出结果的工作器执行结果。</returns>
+    public ValueTask<WorkerResult> RunAsync(WorkerResult<TInput> input)
+    {
+        if (input.IsSuccess)
+        {
+            return RunAsync(input.Result);
+
+        }
+        else
+        {
+            Debug.Assert(input.IsFail);
+            WorkerResult result = input;
+            return ValueTask.FromResult(result);
+        }
     }
 
     /// <summary>
