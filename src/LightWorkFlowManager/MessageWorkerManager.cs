@@ -550,7 +550,17 @@ public class MessageWorkerManager : IAsyncDisposable
 
     #region RunWorker
 
-    // 双向和单向
+    // 双向和单向的参数不好写，参见单元测试里面的用法：
+    // await messageWorkerManager.RunWorker<CaptureProvidedInputWorker, DirectWorkerInput>(new DirectWorkerInput("direct-input"));
+    // 可以看到泛型参数数量太多，也不好一开始就写出来。完全不如 GetWorker 后 RunAsync 的写法：
+    // var downloadResult = await messageWorkerManager
+    //     .GetWorker<FileDownloadWorker>()
+    //     .RunAsync(new FileDownloadInfo()
+    //     {
+    //         DownloadUrl = request.DocumentDownloadFileUrl,
+    //         FileName = request.FileName,
+    //     });
+    // 因此决定将以下几个方法都标记对外不公开，这样就不会让上层开发者感觉重载方法太多而不知道该怎么用
 
     /// <summary>
     /// 使用指定输入参数解析并执行单输入工作器。
@@ -559,7 +569,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <typeparam name="TInput">输入参数类型。</typeparam>
     /// <param name="input">本次执行所需的输入参数。</param>
     /// <returns>工作器执行结果。</returns>
-    public ValueTask<WorkerResult> RunWorker<TWorker, TInput>(TInput input) where TWorker : MessageWorker<TInput>
+    internal ValueTask<WorkerResult> RunWorker<TWorker, TInput>(TInput input) where TWorker : MessageWorker<TInput>
     {
         var worker = GetWorker<TWorker>();
 
@@ -574,7 +584,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
     /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
     /// <returns>工作器执行结果。</returns>
-    public ValueTask<WorkerResult> RunWorker<TWorker, TArgument, TInput>(Func<TArgument, TInput> converter)
+    internal ValueTask<WorkerResult> RunWorker<TWorker, TArgument, TInput>(Func<TArgument, TInput> converter)
         where TWorker : MessageWorker<TInput>
     {
         var worker = GetWorker<TWorker>();
@@ -590,7 +600,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
     /// <param name="input">本次执行所需的输入参数。</param>
     /// <returns>包含输出参数的工作器执行结果。</returns>
-    public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TInput, TOutput>(TInput input) where TWorker : MessageWorker<TInput, TOutput>
+    internal ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TInput, TOutput>(TInput input) where TWorker : MessageWorker<TInput, TOutput>
     {
         var worker = GetWorker<TWorker>();
 
@@ -606,7 +616,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
     /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
     /// <returns>包含输出参数的工作器执行结果。</returns>
-    public ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TArgument, TInput, TOutput>(Func<TArgument, TInput> converter) where TWorker : MessageWorker<TInput, TOutput>
+    internal ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TArgument, TInput, TOutput>(Func<TArgument, TInput> converter) where TWorker : MessageWorker<TInput, TOutput>
     {
         var worker = GetWorker<TWorker>();
 

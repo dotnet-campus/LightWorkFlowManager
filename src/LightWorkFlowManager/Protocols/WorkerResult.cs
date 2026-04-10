@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using DC.LightWorkFlowManager.Contexts;
+using DC.LightWorkFlowManager.Workers;
 
 namespace DC.LightWorkFlowManager.Protocols;
 
@@ -120,6 +122,19 @@ public class WorkerResult<T> : WorkerResult
     /// 获取工作器输出结果。
     /// </summary>
     public T? Result { get; }
+
+    // 为什么不做链调用呢？ 这是因为代码实际写起来不好看：
+    // WorkerResult<F1> r1 = xx;
+    // var r2 = r1.RunWorker<Worker1, F2>();
+    // 这时可以看到在 RunWorker 里面必须加上 TOutput 参数，导致实际不好写，所以就不做链调用了
+    // 决定在带 Input 的 MessageWorker 的 RunAsync 方法提供 WorkerResult<T> 作为入参，这样的结果可能更好
+#if false
+    private WorkerResult<TOutput> RunWorker<TWorker, TOutput>()
+        where TWorker : MessageWorker<T, TOutput>
+    {
+        throw null;
+    }
+#endif
 
     /// <summary>
     /// 将输出结果隐式转换为成功的执行结果。
