@@ -92,6 +92,10 @@ class FooWorker : MessageWorker<InputType, OutputType>
                 .RunWorker<FooWorker>();
 ```
 
+#### 链路调用
+
+
+
 ### 异常中断和重试
 
 每个 Worker 都可以返回 WorkerResult 类型的返回值，可以在返回值里面告知框架层是否当前的 Worker 执行成功。在执行失败时，可以赋值错误码，方便定位调试或输出。在执行失败时，可以返回告知框架层是否需要重试
