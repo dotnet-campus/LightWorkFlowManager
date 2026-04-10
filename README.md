@@ -1,4 +1,6 @@
-# LightWorkFlowManager
+﻿# LightWorkFlowManager
+
+| [中文文档](./README.md) | [English Document](./README.en-US.md) |
 
 轻量的工作过程管理
 
