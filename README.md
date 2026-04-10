@@ -94,7 +94,109 @@ class FooWorker : MessageWorker<InputType, OutputType>
 
 #### 链路调用
 
+在实际业务里，通常会连续调用多个 Worker ，将上一步的输出作为下一步的输入。框架支持将整个调用过程串起来，形成一个清晰的链路。
 
+如以下例子：
+
+```csharp
+        WorkerResult<Info2> step1Result = await messageWorkerManager
+            .GetWorker<Worker1>()
+            .RunAsync(new Info1());
+
+        WorkerResult<Info3> step2Result = await messageWorkerManager
+            .GetWorker<Worker2>()
+            .RunAsync(step1Result);
+
+        // 假定中间没有 Worker3 ，此时可以手动转换参数
+        WorkerResult<Info4> info4Result = step2Result.Convert((Info3 info3) => new Info4());
+
+        WorkerResult<Info5> step3Result = await messageWorkerManager
+            .GetWorker<Worker4>()
+            .RunAsync(info4Result);
+
+        // 注： 假定在 Worker5 里面将返回失败结果
+        WorkerResult<Info6> step4Result = await messageWorkerManager
+            .GetWorker<Worker5>()
+            .RunAsync(step3Result);
+
+        // 尽管 Worker5 失败了，但是其结果依然可以传递给 Worker6 作为入参。这样的设计可以减少大量的错误判断分支代码，尽量确保整个工作链路串行编写。收到带上失败状态的入参时， 不会真的执行 `Worker6` 而是直接将错误继续往后传递
+        WorkerResult<Info7> step5Result = await messageWorkerManager
+            .GetWorker<Worker6>()
+            .RunAsync(step4Result);
+
+        // 链路最后拿到的结果，会和 MessageWorkerStatus 状态保持一致
+        Assert.AreEqual(messageWorkerManager.MessageWorkerStatus.Status, step5Result.ErrorCode);
+        // 同时在 MessageWorkerStatus 也会记录最初失败的 Worker 信息
+        // 如下所示，最后一步的结果是由 Worker6 输出的 `step5Result`，但记录的失败工作器信息依然是最初失败的 Worker5 信息
+        Assert.AreEqual(nameof(Worker5), messageWorkerManager.MessageWorkerStatus.FailWorker?.WorkerName);
+```
+
+在 `RunAsync` 方法里面，既可以传入明确的输入参数类型，如 `RunAsync(new Info1())` ，也可以直接传入上一步执行得到的结果类型，如 `RunAsync(step1Result)` 。这样在串联多个 Worker 时，代码会比较自然。
+
+如果中间某一步的输入输出类型对不上，可以和上文工作器参数一节一样，先进行一次转换，再继续往下执行。以上例子里的 `step2Result.Convert((Info3 info3) => new Info4())` 就是如此。
+
+当某一个 Worker 执行失败时，后续链路依然可以继续拿到一个 `WorkerResult<T>` 对象。例如 `Worker5` 返回失败之后，依然可以拿到 `WorkerResult<Info6> step4Result` 。但这个结果已经带上失败状态，再继续传给 `Worker6` 执行时，`Worker6` 不会真的被执行，而是直接将错误继续往后传递。
+
+因此链路最后拿到的结果，会和 `messageWorkerManager.MessageWorkerStatus.Status` 保持一致。也就是可以通过 `Assert.AreEqual(messageWorkerManager.MessageWorkerStatus.Status, step5Result.ErrorCode);` 这样的方式，确认最终结果就是当前工作流管理器记录下来的状态。
+
+同时，在 `messageWorkerManager.MessageWorkerStatus.FailWorker` 里面，还会记录最初失败的是哪一个 Worker 。如以上例子，在 `Worker5` 首次失败之后，即可通过 `Assert.AreEqual(nameof(Worker5), messageWorkerManager.MessageWorkerStatus.FailWorker?.WorkerName);` 确认失败工作器信息。
+
+以下是各示例工作器类型的代码定义：
+
+```csharp
+    class Worker1 : MessageWorker<Info1, Info2>
+    {
+        protected override async ValueTask<WorkerResult<Info2>> DoInnerAsync(Info1 input)
+        {
+            await Task.CompletedTask;
+            return new Info2();
+        }
+    }
+
+    class Worker2 : MessageWorker<Info2, Info3>
+    {
+        protected override async ValueTask<WorkerResult<Info3>> DoInnerAsync(Info2 input)
+        {
+            await Task.CompletedTask;
+            return new Info3();
+        }
+    }
+
+    class Worker4 : MessageWorker<Info4, Info5>
+    {
+        protected override async ValueTask<WorkerResult<Info5>> DoInnerAsync(Info4 input)
+        {
+            await Task.CompletedTask;
+            return new Info5();
+        }
+    }
+
+    class Worker5 : MessageWorker<Info5, Info6>
+    {
+        protected override async ValueTask<WorkerResult<Info6>> DoInnerAsync(Info5 input)
+        {
+            await Task.CompletedTask;
+            return Fail(new WorkFlowErrorCode(123, "The error message"), canRetry: false);
+        }
+    }
+
+    class Worker6 : MessageWorker<Info6, Info7>
+    {
+        protected override async ValueTask<WorkerResult<Info7>> DoInnerAsync(Info6 input)
+        {
+            await Task.CompletedTask;
+            return new Info7();
+        }
+    }
+
+    record Info1();
+    record Info2();
+    record Info3();
+    record Info4();
+    record Info5();
+    record Info6();
+    record Info7();
+```
 
 ### 异常中断和重试
 

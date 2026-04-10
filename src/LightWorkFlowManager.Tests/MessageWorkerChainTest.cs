@@ -1,8 +1,6 @@
 ﻿using DC.LightWorkFlowManager;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using System;
 using System.Threading.Tasks;
 using DC.LightWorkFlowManager.Contexts;
@@ -57,6 +55,9 @@ public class MessageWorkerChainTest
             .RunAsync(step4Result);
 
         Assert.AreEqual(messageWorkerManager.MessageWorkerStatus.Status, step5Result.ErrorCode);
+
+        Assert.IsNotNull(messageWorkerManager.MessageWorkerStatus.FailWorker);
+        Assert.AreEqual(nameof(Worker5), messageWorkerManager.MessageWorkerStatus.FailWorker?.WorkerName);
     }
 
     class Worker1 : MessageWorker<Info1, Info2>
@@ -105,10 +106,16 @@ public class MessageWorkerChainTest
     }
 
     record Info1();
+
     record Info2();
+
     record Info3();
+
     record Info4();
+
     record Info5();
+
     record Info6();
+
     record Info7();
 }
