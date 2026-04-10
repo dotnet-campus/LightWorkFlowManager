@@ -99,6 +99,14 @@ public class MessageWorkerManager : IAsyncDisposable
     public ILogger Logger { get; protected set; }
 
     /// <summary>
+    /// 是否应该吞掉异常。设置为 true 时，将在执行工作器过程中，工作器所有抛出的异常都不能对外抛出，无法通过异常打断外部流程，框架会当做工作器执行失败来处理。设置为 false 时，将允许工作器抛出异常，外部流程可以通过捕获异常来打断流程。默认值为 false。
+    /// </summary>
+    /// <remarks>
+    /// 默认为 false 表示不吞掉工作器执行过程的异常，保留原本的 dotnet 异常流程设计，仅对异常做记录
+    /// </remarks>
+    public bool ShouldSwallowException { get; init; } = false;
+
+    /// <summary>
     /// 设置上下文信息。设计上要求一个类型对应一个参数，不允许相同的类型作为不同的参数
     /// </summary>
     /// <typeparam name="T">上下文类型。</typeparam>
@@ -303,8 +311,17 @@ public class MessageWorkerManager : IAsyncDisposable
             OnWorkerRunException(worker, e);
             MessageWorkerStatus.LastException = e;
 
-            // 继续对外抛出
-            throw;
+            if (ShouldSwallowException)
+            {
+                // 不再对外抛出异常
+                Debug.Assert(MessageWorkerStatus.IsFail);
+                return WorkerResult.Fail(MessageWorkerStatus.Status, canRetry: false);
+            }
+            else
+            {
+                // 继续对外抛出
+                throw;
+            }
         }
 
         // 运行工作任务的核心入口
@@ -449,7 +466,7 @@ public class MessageWorkerManager : IAsyncDisposable
         //}
         else
         {
-            RecordWorkerError(worker, new WorkFlowErrorCode(-1, e.ToString()));
+            RecordWorkerError(worker, WorkFlowErrorCode.FromException(e));
         }
     }
 
