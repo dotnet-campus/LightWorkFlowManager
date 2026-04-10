@@ -11,6 +11,20 @@
 
 世界上有许多现有的工作过程管理，那为什么还重新造了一个？没啥原因，自己造的用的顺手
 
+本工作过程管理库有什么特色？
+
+- 支持链调用，可全程串行编写工作过程，无需分支判断逻辑
+- 自动输入输出参数传递，可手动可自动
+- 内建各种辅助机制：
+  - 自动失败重试
+  - 自动错误传递
+  - 内建错误码机制
+- 可观测执行状态： IWorkerRunMonitor 机制
+- 高定制模式
+  - 可重写定制上下文管理
+  - 可重写工作器执行管理
+  - 可重写异常捕获与记录
+
 为了不和旧代码冲突，这里命名 Worker 为 MessageWorker 类型
 
 ## 使用方法
@@ -45,6 +59,8 @@ class FooWorker : MessageWorker<InputType, OutputType>
 ```
 
 每个工作器都可以声明其输入和输出类型，输入类型将会自动由框架注入，输出类型将会自动存储到框架里面
+
+请确保定义的工作器注册到容器里面，推荐使用 `AddTransient` 做瞬时注入或 `AddScoped` 做作用域注入；最好**不要**使用 `AddSingleton` 做单例注入，避免多次工作流状态混乱
 
 3、 执行 Worker 工作器
 
@@ -94,7 +110,7 @@ class FooWorker : MessageWorker<InputType, OutputType>
 
 #### 链路调用
 
-在实际业务里，通常会连续调用多个 Worker ，将上一步的输出作为下一步的输入。框架支持将整个调用过程串起来，形成一个清晰的链路。
+在实际业务里，通常会连续调用多个 Worker 工作器，将上一步的输出作为下一步的输入。框架支持将整个调用过程串起来，形成一个清晰的链路。
 
 如以下例子：
 
@@ -269,6 +285,22 @@ class FooWorker : MessageWorker<InputType, OutputType>
                 // 在这里编写委托工作器的业务内容
             });
 ```
+
+### 内建机制
+
+
+
+`MessageWorker` 除了约定工作器的执行方式之外，还内建了一些在自己编写工作器时可直接使用的机制，用来减少样板代码。
+
+- 可重写工作器名称。默认情况下，`WorkerName` 使用当前类型名，如果希望在日志或调试时显示更明确的名称，可以重写 `WorkerName` 属性。
+- 可以为工作器设置自己能否被重试。`CanRetry` 默认值为 `true`，如某个工作器失败后不适合重复执行，可以自行设置为 `false`。如果要在某次失败时精确指定是否允许重试，也可以通过 `Fail(errorCode, canRetry)` 或 `FailTask(errorCode, canRetry)` 返回结果。
+- 可设置当前置工作器执行失败时，当前工作器是否依然继续执行。`CanRunWhenFail` 默认值为 `false`，如果当前工作器属于收尾、记录日志、清理现场之类的逻辑，可以将其设置为 `true`。
+- 如果有多个输出内容，可以通过 `SetContext` 将额外结果写入上下文，供后续工作器继续读取，不必只依赖单一输出值。
+- 如果执行成功且没有返回值，可以直接调用 `Success()` 返回成功结果。如果执行方法里面没有真正的异步逻辑，也可以直接调用 `SuccessTask()` 获取返回值。
+- 如果执行失败，可以调用 `Fail` 或 `FailTask` 快速返回失败结果。
+- 对于继承自 `MessageWorker<TInput, TOutput>` 的类型，还可以使用 `Success(TOutput output)` 直接返回带输出的成功结果；如果当前拿到的是一个失败结果，也可以通过 `WorkerResult<TOutput> Fail(WorkerResult failResult)` 将其转换成当前输出类型的失败结果。
+- 可以用 `WorkerResult.AsFail<T>` 方法将一个失败状态转换为另一个类型的失败状态，错误码和是否允许重试等信息会被保留。
+- 可以用 `RegisterOnDispose` 系列方法注册当整个 `MessageWorkerManager` 被 `Dispose` 时执行的逻辑，例如清理临时文件、删除文件夹或执行其他收尾工作。
 
 ## 相似的项目
 
