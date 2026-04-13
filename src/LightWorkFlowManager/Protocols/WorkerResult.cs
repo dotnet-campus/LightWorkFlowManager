@@ -116,7 +116,7 @@ public class WorkerResult<T> : WorkerResult
     /// 获取当前执行是否成功。
     /// </summary>
     [MemberNotNullWhen(true, nameof(Result))]
-    public override bool IsSuccess => Result != null;
+    public override bool IsSuccess => base.IsSuccess && Result != null;
 
     /// <summary>
     /// 获取工作器输出结果。
