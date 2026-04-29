@@ -22,12 +22,12 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 创建工作器管理
     /// </summary>
-    /// <param name="taskId"></param>
+    /// <param name="taskId">任务标识。</param>
     /// <param name="taskName">任务名，任务类型，如 PDF 解析或 PPT 解析等</param>
-    /// <param name="serviceScope"></param>
+    /// <param name="serviceScope">用于解析工作器与依赖项的服务作用域。</param>
     /// <param name="retryCount">每个工作器的失败重试次数，默认三次</param>
     /// <param name="context">参数上下文信息</param>
-    /// <param name="workerRunMonitor"></param>
+    /// <param name="workerRunMonitor">工作器运行监控器。</param>
     public MessageWorkerManager(string taskId, string taskName, IServiceScope serviceScope, int retryCount = 3,
         IWorkerContext? context = null, IWorkerRunMonitor? workerRunMonitor = null)
     {
@@ -99,9 +99,9 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 设置上下文信息。设计上要求一个类型对应一个参数，不允许相同的类型作为不同的参数
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="context"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">上下文类型。</typeparam>
+    /// <param name="context">要保存的上下文对象。</param>
+    /// <returns>当前工作器管理器。</returns>
     public MessageWorkerManager SetContext<T>(T context)
     {
         Context.SetContext(context);
@@ -113,9 +113,9 @@ public class MessageWorkerManager : IAsyncDisposable
     /// </summary>
     /// <typeparam name="TInput">现有的参数类型</typeparam>
     /// <typeparam name="TOutput">转换后的参数类型</typeparam>
-    /// <param name="worker"></param>
+    /// <param name="worker">参数转换委托。</param>
     /// <remarks>如果前置步骤失败，即 <see cref="MessageWorkerStatus"/> 为 IsFail 时，将不执行委托内容</remarks>
-    /// <returns></returns>
+    /// <returns>当前工作器管理器。</returns>
     public MessageWorkerManager SetContext<TInput, TOutput>(Func<TInput, TOutput> worker)
     {
         if (MessageWorkerStatus.IsFail)
@@ -133,8 +133,8 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 获取工作器，获取到的工作器将会被注入信息
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    /// <typeparam name="T">工作器类型。</typeparam>
+    /// <returns>已注入管理器信息的工作器实例。</returns>
     public T GetWorker<T>() where T : IMessageWorker
     {
         var messageWorker = ServiceProvider.GetRequiredService<T>();
@@ -145,12 +145,12 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="messageTask"></param>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">输出参数类型。</typeparam>
+    /// <param name="messageTask">同步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TInput, TOutput>(Func<TInput, TOutput> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker<TInput, TOutput>(messageTask, workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -160,12 +160,12 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="messageTask"></param>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">输出参数类型。</typeparam>
+    /// <param name="messageTask">异步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TInput, TOutput>(Func<TInput, ValueTask<TOutput>> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker<TInput, TOutput>(messageTask, workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -175,11 +175,11 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="messageTask"></param>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <param name="messageTask">异步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TInput>(Func<TInput, ValueTask> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker<TInput>(messageTask, workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -189,10 +189,10 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <param name="messageTask"></param>
+    /// <param name="messageTask">异步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker(Func<ValueTask> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker(_ => messageTask(), workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -202,11 +202,11 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="messageTask"></param>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <param name="messageTask">同步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TInput>(Action<TInput> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker<TInput>(input =>
@@ -220,10 +220,10 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <param name="messageTask"></param>
+    /// <param name="messageTask">同步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker(Action<IWorkerContext> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker(messageTask, workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -233,10 +233,10 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <param name="messageTask"></param>
+    /// <param name="messageTask">同步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker(Action messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker(_ => messageTask(), workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -246,10 +246,10 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     ///  执行委托工作器，执行的内容为 <paramref name="messageTask"/> 参数的内容
     /// </summary>
-    /// <param name="messageTask"></param>
+    /// <param name="messageTask">异步执行委托。</param>
     /// <param name="workerName">此委托代表的工作器名，用于调试和埋点上报</param>
     /// <param name="canRunWhenFail">是否在当前 <see cref="MessageWorkerManager"/> 前置步骤已失败时，依然可以执行。默认为 false 表示在前置步骤失败时，不执行</param>
-    /// <returns></returns>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker(Func<IWorkerContext, ValueTask> messageTask, string? workerName = null, bool canRunWhenFail = false)
     {
         var worker = new DelegateMessageWorker(messageTask, workerName ?? messageTask.Method.DeclaringType?.FullName, canRunWhenFail);
@@ -259,8 +259,8 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 执行工作器
     /// </summary>
-    /// <typeparam name="TWorker"></typeparam>
-    /// <returns></returns>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <returns>工作器执行结果。</returns>
     public ValueTask<WorkerResult> RunWorker<TWorker>() where TWorker : IMessageWorker
     {
         var worker = ServiceProvider.GetRequiredService<TWorker>();
@@ -270,8 +270,8 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <summary>
     /// 执行工作器
     /// </summary>
-    /// <param name="worker"></param>
-    /// <returns></returns>
+    /// <param name="worker">要执行的工作器。</param>
+    /// <returns>工作器执行结果。</returns>
     public virtual async ValueTask<WorkerResult> RunWorker(IMessageWorker worker)
     {
         SetManager(worker as IMessageWorkerManagerSensitive);
@@ -508,6 +508,10 @@ public class MessageWorkerManager : IAsyncDisposable
             canRetry: false);
     }
 
+    /// <summary>
+    /// 异步释放当前管理器持有的工作器和服务作用域。
+    /// </summary>
+    /// <returns>表示异步释放操作的任务。</returns>
     public async ValueTask DisposeAsync()
     {
         while (_workerStack.TryPop(out var worker))

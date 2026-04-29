@@ -12,11 +12,17 @@ using MSTest.Extensions.Contracts;
 
 namespace LightWorkFlowManager.Tests;
 
+/// <summary>
+/// `MessageWorkerManager` 相关测试。
+/// </summary>
 [TestClass]
 public class MessageWorkerManagerTest
 {
     private const int UnknownError = 7000;
 
+    /// <summary>
+    /// 验证工作器管理器在失败、重试与异常场景下的行为。
+    /// </summary>
     [ContractTestCase]
     public void RunFail()
     {
@@ -120,6 +126,14 @@ public class MessageWorkerManagerTest
         });
     }
 
+    /// <summary>
+    /// 创建用于测试的工作器管理器。
+    /// </summary>
+    /// <param name="serviceProvider">可选的服务提供器。</param>
+    /// <param name="taskId">可选的任务标识。</param>
+    /// <param name="taskName">可选的任务名称。</param>
+    /// <param name="retryCount">重试次数。</param>
+    /// <returns>测试用工作器管理器实例。</returns>
     public static MessageWorkerManager GetTestMessageWorkerManager(IServiceProvider? serviceProvider = null,
         string? taskId = null, string? taskName = null, int retryCount = 3)
     {
@@ -128,6 +142,10 @@ public class MessageWorkerManagerTest
         return messageWorkerManager;
     }
 
+    /// <summary>
+    /// 构建测试用服务提供器。
+    /// </summary>
+    /// <returns>测试用服务提供器实例。</returns>
     public static IServiceProvider BuildServiceProvider()
     {
         var serviceCollection = new ServiceCollection();

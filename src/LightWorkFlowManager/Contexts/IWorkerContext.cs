@@ -11,15 +11,15 @@ public interface IWorkerContext
     /// <summary>
     /// 获取上下文信息
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns>如果获取不到，返回空</returns>
+    /// <typeparam name="T">上下文类型。</typeparam>
+    /// <returns>如果获取不到则返回空。</returns>
     T? GetContext<T>();
 
     /// <summary>
     /// 设置上下文信息
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="context"></param>
+    /// <typeparam name="T">上下文类型。</typeparam>
+    /// <param name="context">要保存的上下文对象。</param>
     void SetContext<T>(T context);
 }
 
@@ -31,9 +31,9 @@ public static class MessageContextExtension
     /// <summary>
     /// 获取一定存在的上下文信息
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="workerContext"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">上下文类型。</typeparam>
+    /// <param name="workerContext">工作器上下文。</param>
+    /// <returns>已存在的上下文对象。</returns>
     /// <exception cref="WorkerContextNotFoundException">如果上下文信息不存在，就抛出异常</exception>
     public static T GetEnsureContext<T>(this IWorkerContext workerContext)
     {

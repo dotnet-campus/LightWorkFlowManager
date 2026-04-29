@@ -11,9 +11,15 @@ using MSTest.Extensions.Contracts;
 
 namespace LightWorkFlowManager.Tests;
 
+/// <summary>
+/// `MessageWorker` 相关测试。
+/// </summary>
 [TestClass]
 public class MessageWorkerTest
 {
+    /// <summary>
+    /// 验证工作器内部可以继续运行其他工作器。
+    /// </summary>
     [ContractTestCase]
     public void RunWorkerOnWorker()
     {

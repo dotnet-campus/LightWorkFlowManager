@@ -7,6 +7,10 @@ namespace DC.LightWorkFlowManager.Exceptions;
 /// </summary>
 public class MessageWorkerInputNotFoundException : InvalidOperationException, IWorkFlowException
 {
+    /// <summary>
+    /// 使用指定错误消息初始化异常。
+    /// </summary>
+    /// <param name="message">异常消息。</param>
     public MessageWorkerInputNotFoundException(string? message) : base(message)
     {
     }

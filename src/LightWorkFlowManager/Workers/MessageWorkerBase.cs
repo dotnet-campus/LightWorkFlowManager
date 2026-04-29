@@ -12,7 +12,12 @@ namespace DC.LightWorkFlowManager.Workers;
 /// </summary>
 public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerSensitive
 {
+    /// <inheritdoc />
     public string TaskId { get; set; } = null!;
+
+    /// <summary>
+    /// 获取当前工作器名称。
+    /// </summary>
     public virtual string WorkerName => GetType().Name;
 
     /// <summary>
@@ -20,6 +25,9 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
     /// </summary>
     public virtual bool CanRetry { protected set; get; } = true;
 
+    /// <summary>
+    /// 获取重试前的等待时间。
+    /// </summary>
     public virtual TimeSpan RetryDelayTime => TimeSpan.FromSeconds(1);
 
     /// <summary>
@@ -29,11 +37,16 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
     // 默认遇到错误不能运行
         = false;
 
+    /// <inheritdoc />
     public abstract ValueTask<WorkerResult> Do(IWorkerContext context);
 
     protected MessageWorkerStatus Status => GetEnsureContext<MessageWorkerStatus>();
     protected IWorkerContext CurrentContext => Manager.Context;
     protected IServiceProvider ServiceProvider => Manager.ServiceProvider;
+
+    /// <summary>
+    /// 获取当前工作器使用的日志器。
+    /// </summary>
     public ILogger Logger { get; private set; }
         // 框架注入
         = null!;
@@ -62,6 +75,10 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
     protected T? GetContext<T>() => CurrentContext.GetContext<T>();
     protected void SetContext<T>(T context) => CurrentContext.SetContext(context);
 
+    /// <summary>
+    /// 通过当前管理器执行当前工作器。
+    /// </summary>
+    /// <returns>工作器执行结果。</returns>
     public async ValueTask<WorkerResult> RunAsync()
     {
         ThrowNotManager();
@@ -70,6 +87,7 @@ public abstract class MessageWorkerBase : IMessageWorker, IMessageWorkerManagerS
         return result;
     }
 
+    /// <inheritdoc />
     public async ValueTask OnDisposeAsync(IWorkerContext context)
     {
         if (_onDispose != null)
