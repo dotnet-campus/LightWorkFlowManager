@@ -41,9 +41,9 @@ public class MessageWorkerTest
         });
     }
 
-    class Worker1 : MessageWorkerBase
+    class Worker1 : MessageWorker
     {
-        public override async ValueTask<WorkerResult> Do(IWorkerContext context)
+        protected override async ValueTask<WorkerResult> DoInnerAsync(IWorkerContext context)
         {
             await Manager
                 .GetWorker<Worker2>()

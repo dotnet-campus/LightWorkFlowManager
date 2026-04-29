@@ -12,7 +12,8 @@
 
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright © 2023 dotnet campus, All Rights Reserved.</Copyright>
+    <ThisYear>$([System.DateTime]::Now.ToString(`yyyy`))</ThisYear>
+    <Copyright>Copyright © 2023-$(ThisYear) dotnet campus, All Rights Reserved.</Copyright>
 
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

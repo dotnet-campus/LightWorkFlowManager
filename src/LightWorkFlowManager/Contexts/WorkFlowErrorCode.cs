@@ -37,6 +37,11 @@ public readonly struct WorkFlowErrorCode : IEquatable<WorkFlowErrorCode>
     /// </summary>
     public static WorkFlowErrorCode Ok => new WorkFlowErrorCode(0, "Ok");
 
+    internal static WorkFlowErrorCode FromException(Exception e)
+    {
+        return new WorkFlowErrorCode(-1, e.ToString());
+    }
+
     /// <summary>
     /// 追加信息
     /// </summary>

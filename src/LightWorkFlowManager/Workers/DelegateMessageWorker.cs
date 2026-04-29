@@ -30,7 +30,7 @@ public class DelegateMessageWorker<TInput> : MessageWorker<TInput>
 
     private readonly string? _workerName;
 
-    protected override async ValueTask<WorkerResult> DoAsync(TInput input)
+    protected override async ValueTask<WorkerResult> DoInnerAsync(TInput input)
     {
         await _messageTask(input);
         return WorkerResult.Success();
@@ -94,7 +94,7 @@ public class DelegateMessageWorker<TInput, TOutput> : MessageWorker<TInput, TOut
 /// <summary>
 /// 表示基于委托实现的无固定输入工作器。
 /// </summary>
-public class DelegateMessageWorker : MessageWorkerBase
+public class DelegateMessageWorker : MessageWorker
 {
     /// <summary>
     /// 使用同步委托初始化工作器。
@@ -154,7 +154,7 @@ public class DelegateMessageWorker : MessageWorkerBase
     private readonly Func<IWorkerContext, ValueTask<WorkerResult>> _messageTask;
 
     /// <inheritdoc />
-    public override ValueTask<WorkerResult> Do(IWorkerContext context)
+    protected override ValueTask<WorkerResult> DoInnerAsync(IWorkerContext context)
     {
         return _messageTask(context);
     }

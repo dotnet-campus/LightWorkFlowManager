@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+
 using DC.LightWorkFlowManager.Contexts;
 using DC.LightWorkFlowManager.Exceptions;
 using DC.LightWorkFlowManager.Monitors;
 using DC.LightWorkFlowManager.Protocols;
 using DC.LightWorkFlowManager.Workers;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -95,6 +97,14 @@ public class MessageWorkerManager : IAsyncDisposable
     /// 日志
     /// </summary>
     public ILogger Logger { get; protected set; }
+
+    /// <summary>
+    /// 是否应该吞掉异常。设置为 true 时，将在执行工作器过程中，工作器所有抛出的异常都不能对外抛出，无法通过异常打断外部流程，框架会当做工作器执行失败来处理。设置为 false 时，将允许工作器抛出异常，外部流程可以通过捕获异常来打断流程。默认值为 false。
+    /// </summary>
+    /// <remarks>
+    /// 默认为 false 表示不吞掉工作器执行过程的异常，保留原本的 dotnet 异常流程设计，仅对异常做记录
+    /// </remarks>
+    public bool ShouldSwallowException { get; init; } = false;
 
     /// <summary>
     /// 设置上下文信息。设计上要求一个类型对应一个参数，不允许相同的类型作为不同的参数
@@ -301,8 +311,17 @@ public class MessageWorkerManager : IAsyncDisposable
             OnWorkerRunException(worker, e);
             MessageWorkerStatus.LastException = e;
 
-            // 继续对外抛出
-            throw;
+            if (ShouldSwallowException)
+            {
+                // 不再对外抛出异常
+                Debug.Assert(MessageWorkerStatus.IsFail);
+                return WorkerResult.Fail(MessageWorkerStatus.Status, canRetry: false);
+            }
+            else
+            {
+                // 继续对外抛出
+                throw;
+            }
         }
 
         // 运行工作任务的核心入口
@@ -397,7 +416,7 @@ public class MessageWorkerManager : IAsyncDisposable
     /// <returns></returns>
     protected virtual ValueTask<WorkerResult> RunWorkerCore(IMessageWorker worker)
         // 可以在这里打断点，调试被执行的逻辑
-        => worker.Do(Context);
+        => worker.DoAsync(Context);
 
     /// <summary>
     /// 在当前是失败的状态下，跳过工作器的执行
@@ -447,7 +466,7 @@ public class MessageWorkerManager : IAsyncDisposable
         //}
         else
         {
-            RecordWorkerError(worker, new WorkFlowErrorCode(-1, e.ToString()));
+            RecordWorkerError(worker, WorkFlowErrorCode.FromException(e));
         }
     }
 
@@ -545,4 +564,81 @@ public class MessageWorkerManager : IAsyncDisposable
 
         return $"[{name}] {status} WorkerList:{string.Join('-', _workerStack.Reverse().Select(worker => worker.WorkerName))}";
     }
+
+    #region RunWorker
+
+    // 双向和单向的参数不好写，参见单元测试里面的用法：
+    // await messageWorkerManager.RunWorker<CaptureProvidedInputWorker, DirectWorkerInput>(new DirectWorkerInput("direct-input"));
+    // 可以看到泛型参数数量太多，也不好一开始就写出来。完全不如 GetWorker 后 RunAsync 的写法：
+    // var downloadResult = await messageWorkerManager
+    //     .GetWorker<FileDownloadWorker>()
+    //     .RunAsync(new FileDownloadInfo()
+    //     {
+    //         DownloadUrl = request.DocumentDownloadFileUrl,
+    //         FileName = request.FileName,
+    //     });
+    // 因此决定将以下几个方法都标记对外不公开，这样就不会让上层开发者感觉重载方法太多而不知道该怎么用
+
+    /// <summary>
+    /// 使用指定输入参数解析并执行单输入工作器。
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TInput">输入参数类型。</typeparam>
+    /// <param name="input">本次执行所需的输入参数。</param>
+    /// <returns>工作器执行结果。</returns>
+    internal ValueTask<WorkerResult> RunWorker<TWorker, TInput>(TInput input) where TWorker : MessageWorker<TInput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(input);
+    }
+
+    /// <summary>
+    /// 从当前上下文读取参数，经转换后解析并执行单输入工作器。
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TArgument">当前上下文中已有的参数类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
+    /// <returns>工作器执行结果。</returns>
+    internal ValueTask<WorkerResult> RunWorker<TWorker, TArgument, TInput>(Func<TArgument, TInput> converter)
+        where TWorker : MessageWorker<TInput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(converter);
+    }
+
+    /// <summary>
+    /// 使用指定输入参数解析并执行带输出的工作器。
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
+    /// <param name="input">本次执行所需的输入参数。</param>
+    /// <returns>包含输出参数的工作器执行结果。</returns>
+    internal ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TInput, TOutput>(TInput input) where TWorker : MessageWorker<TInput, TOutput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(input);
+    }
+
+    /// <summary>
+    /// 从当前上下文读取参数，经转换后解析并执行带输出的工作器。
+    /// </summary>
+    /// <typeparam name="TWorker">工作器类型。</typeparam>
+    /// <typeparam name="TArgument">当前上下文中已有的参数类型。</typeparam>
+    /// <typeparam name="TInput">工作器输入参数类型。</typeparam>
+    /// <typeparam name="TOutput">工作器输出参数类型。</typeparam>
+    /// <param name="converter">将上下文参数转换为工作器输入的委托。</param>
+    /// <returns>包含输出参数的工作器执行结果。</returns>
+    internal ValueTask<WorkerResult<TOutput>> RunWorker<TWorker, TArgument, TInput, TOutput>(Func<TArgument, TInput> converter) where TWorker : MessageWorker<TInput, TOutput>
+    {
+        var worker = GetWorker<TWorker>();
+
+        return worker.RunAsync(converter);
+    }
+
+    #endregion
 }

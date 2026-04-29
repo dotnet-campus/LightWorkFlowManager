@@ -39,7 +39,4 @@ jobs:
     - name: Publish
       run: |
         dotnet nuget push ".\bin\Release\*.nupkg" --api-key ${{ secrets.NugetKey }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        dotnet nuget push ".\bin\Release\*.nupkg" \
-          --api-key ${{ secrets.GITHUB_TOKEN }} \
-          --source https://nuget.pkg.github.com/${{ github.repository_owner }} \
-          --skip-duplicate
+        dotnet nuget push ".\bin\Release\*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate

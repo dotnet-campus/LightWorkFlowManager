@@ -126,6 +126,50 @@ public class MessageWorkerManagerTest
         });
     }
 
+    [TestMethod]
+    public async Task RunWorker_WithInputWorkerAndDirectInput_RunsWorkerWithProvidedInput()
+    {
+        var messageWorkerManager = GetTestMessageWorkerManager();
+
+        await messageWorkerManager.RunWorker<CaptureProvidedInputWorker, DirectWorkerInput>(new DirectWorkerInput("direct-input"));
+
+        var observedInput = messageWorkerManager.Context.GetEnsureContext<ObservedWorkerInput>();
+        Assert.AreEqual("direct-input", observedInput.Value);
+    }
+
+    [TestMethod]
+    public async Task RunWorker_WithInputWorkerAndConverter_RunsWorkerWithConvertedInput()
+    {
+        var messageWorkerManager = GetTestMessageWorkerManager();
+        messageWorkerManager.SetContext(new WorkerArgument("argument"));
+
+        await messageWorkerManager.RunWorker<CaptureConvertedInputWorker, WorkerArgument, ConvertedWorkerInput>(argument => new ConvertedWorkerInput($"{argument.Value}-converted"));
+
+        var observedInput = messageWorkerManager.Context.GetEnsureContext<ObservedWorkerInput>();
+        Assert.AreEqual("argument-converted", observedInput.Value);
+    }
+
+    [TestMethod]
+    public async Task RunWorker_WithInputOutputWorkerAndDirectInput_ReturnsWorkerOutput()
+    {
+        var messageWorkerManager = GetTestMessageWorkerManager();
+
+        var result = await messageWorkerManager.RunWorker<ReturnProvidedOutputWorker, DirectWorkerInput, WorkerOutput>(new DirectWorkerInput("direct-input"));
+
+        Assert.AreEqual("output:direct-input", result.Result?.Value);
+    }
+
+    [TestMethod]
+    public async Task RunWorker_WithInputOutputWorkerAndConverter_ReturnsConvertedWorkerOutput()
+    {
+        var messageWorkerManager = GetTestMessageWorkerManager();
+        messageWorkerManager.SetContext(new WorkerArgument("argument"));
+
+        var result = await messageWorkerManager.RunWorker<ReturnConvertedOutputWorker, WorkerArgument, ConvertedWorkerInput, WorkerOutput>(argument => new ConvertedWorkerInput($"{argument.Value}-converted"));
+
+        Assert.AreEqual("output:argument-converted", result.Result?.Value);
+    }
+
     /// <summary>
     /// 创建用于测试的工作器管理器。
     /// </summary>
@@ -151,14 +195,28 @@ public class MessageWorkerManagerTest
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging();
         serviceCollection.AddTransient<RequestInputMessageWorker>();
+        serviceCollection.AddTransient<CaptureProvidedInputWorker>();
+        serviceCollection.AddTransient<CaptureConvertedInputWorker>();
+        serviceCollection.AddTransient<ReturnProvidedOutputWorker>();
+        serviceCollection.AddTransient<ReturnConvertedOutputWorker>();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
         return serviceProvider;
     }
 
+    private record DirectWorkerInput(string Value);
+
+    private record WorkerArgument(string Value);
+
+    private record ConvertedWorkerInput(string Value);
+
+    private record ObservedWorkerInput(string Value);
+
+    private record WorkerOutput(string Value);
+
     private class RequestInputMessageWorker : MessageWorker<TestInputFoo>
     {
-        protected override ValueTask<WorkerResult> DoAsync(TestInputFoo input)
+        protected override ValueTask<WorkerResult> DoInnerAsync(TestInputFoo input)
         {
             return ValueTask.FromResult(WorkerResult.Success());
         }
@@ -168,11 +226,45 @@ public class MessageWorkerManagerTest
     {
     }
 
-    private class FailTestMessageWorker : MessageWorkerBase
+    private class CaptureProvidedInputWorker : MessageWorker<DirectWorkerInput>
+    {
+        protected override ValueTask<WorkerResult> DoInnerAsync(DirectWorkerInput input)
+        {
+            SetContext(new ObservedWorkerInput(input.Value));
+            return ValueTask.FromResult(WorkerResult.Success());
+        }
+    }
+
+    private class CaptureConvertedInputWorker : MessageWorker<ConvertedWorkerInput>
+    {
+        protected override ValueTask<WorkerResult> DoInnerAsync(ConvertedWorkerInput input)
+        {
+            SetContext(new ObservedWorkerInput(input.Value));
+            return ValueTask.FromResult(WorkerResult.Success());
+        }
+    }
+
+    private class ReturnProvidedOutputWorker : MessageWorker<DirectWorkerInput, WorkerOutput>
+    {
+        protected override ValueTask<WorkerResult<WorkerOutput>> DoInnerAsync(DirectWorkerInput input)
+        {
+            return ValueTask.FromResult<WorkerResult<WorkerOutput>>(new WorkerOutput($"output:{input.Value}"));
+        }
+    }
+
+    private class ReturnConvertedOutputWorker : MessageWorker<ConvertedWorkerInput, WorkerOutput>
+    {
+        protected override ValueTask<WorkerResult<WorkerOutput>> DoInnerAsync(ConvertedWorkerInput input)
+        {
+            return ValueTask.FromResult<WorkerResult<WorkerOutput>>(new WorkerOutput($"output:{input.Value}"));
+        }
+    }
+
+    private class FailTestMessageWorker : MessageWorker
     {
         public bool Success { get; set; }
 
-        public override ValueTask<WorkerResult> Do(IWorkerContext context)
+        protected override ValueTask<WorkerResult> DoInnerAsync(IWorkerContext context)
         {
             var result = Success ? WorkerResult.Success() : WorkerResult.Fail(UnknownError);
             Success = !Success;
